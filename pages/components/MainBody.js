@@ -1,17 +1,58 @@
 import DonationAmountBox from "@/pages/components/donation-amount-box";
 import Image from "next/image";
 import {useState} from "react";
-import 'react-credit-cards/es/styles-compiled.css'
+// import {isValid, formatCardNumber} from 'card-validator';
+// import * as cardValidator from 'card-validator';
+// const { formatCardNumber } = cardValidator;
+import cardValidator from "card-validator";
+import formatCreditCardNumber from "@/utils/formatCreditCardNumber";
+import formatExpiryDate from "@/utils/formatExpiryDate";
+import creditcardutils from "creditcardutils";
 
 export default function MainBody() {
   const [step, setStep] = useState(1);
   const [donationAmount, setdonationAmount] = useState(0);
   const [value, setValue] = useState('');
 
+  // CARD STATES
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardType, setCardType] = useState('unknown');
+  const [isCardNumberValid, setIsCardNumberValid] = useState(false);
+  const [expiryDate, setExpiryDate] = useState('');
+  const [cvc, setCvc] = useState('');
+  const [cvcSize, setCvcSize] = useState(3);
+  const [cardHolderName, setCardHolderName] = useState('');
+  const [focus, setFocus] = useState('');
+
   const handleAmountChange = (event) => {
     let amount = event.currentTarget.getAttribute('data-amount');
     setdonationAmount(amount);
   }
+
+  const handleCardNumberChange = (event) => {
+    const formattedNumber = formatCreditCardNumber(event.target.value.replace(/\D/g, ''));
+    setCardNumber(formattedNumber);
+    const isCardNumberValid = cardValidator.number(event.target.value);
+
+    console.log('card validation status:', isCardNumberValid);
+    if(isCardNumberValid.card) {
+      setCardType(isCardNumberValid.card.type);
+      setCvcSize(isCardNumberValid.card.code.size);
+      // console.log('cvc length: ', isCardNumberValid.card.code.size);
+    }
+  };
+
+  const handleCardHolderNameChange = (event) => {
+    setCardHolderName(event.target.value);
+    console.log('name validation status:', cardValidator.cardholderName(cardHolderName));
+  }
+
+  const handleExpiryDateChange = (event) => {
+    // const formattedString = formatExpiryDate(event.target.value);
+    const formattedString = creditcardutils.formatCardExpiry(event.target.value);
+    setExpiryDate(formattedString);
+  }
+
   const handleNext = () => {
     setStep(step + 1);
   }
@@ -206,29 +247,50 @@ export default function MainBody() {
                   <div className='step-body px-6 sm:px-8 py-4'>
                     <div className='form-group mb-4'>
                       <label className='font-semibold text-xl mb-1 block'>Card Number:</label>
-                      <input type='text'
-                             className='shadow appearance-none border rounded w-full py-3 sm:py-3 px-4 text-lg sm:text-xl text-gray-700 leading-tight focus:outline-none focus:shadow-outline'/>
+                      <input
+                        type="text"
+                        className='shadow appearance-none border rounded w-full py-3 sm:py-3 px-4 text-lg sm:text-xl text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+                        name="number"
+                        placeholder="Card Number"
+                        maxLength={19}
+                        value={cardNumber}
+                        onChange={handleCardNumberChange}
+                      />
+
 
                     </div>
 
                     <div className='form-group mb-4'>
-                      <label className='font-semibold text-xl mb-1 block'>Expiry Month:</label>
-                      <input type='text'
-                             className='shadow appearance-none border rounded w-full py-3 sm:py-3 px-4 text-lg sm:text-xl text-gray-700 leading-tight focus:outline-none focus:shadow-outline'/>
+                      <label className='font-semibold text-xl mb-1 block'>Expiry Date:</label>
+                      <input
+                        type='text'
+                        className='shadow appearance-none border rounded w-full py-3 sm:py-3 px-4 text-lg sm:text-xl text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+                        name="expiryDate"
+                        value={expiryDate}
+                        onChange={handleExpiryDateChange}
+                      />
 
                     </div>
 
                     <div className='form-group mb-4'>
-                      <label className='font-semibold text-xl mb-1 block'>City:</label>
-                      <input type='text'
-                             className='shadow appearance-none border rounded w-full py-3 sm:py-3 px-4 text-lg sm:text-xl text-gray-700 leading-tight focus:outline-none focus:shadow-outline'/>
+                      <label className='font-semibold text-xl mb-1 block'>CVC:</label>
+                      <input
+                        type='text'
+                        className='shadow appearance-none border rounded w-full py-3 sm:py-3 px-4 text-lg sm:text-xl text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+                        value={cvc}
+                      />
 
                     </div>
 
                     <div className='form-group mb-4'>
-                      <label className='font-semibold text-xl mb-1 block'>Country:</label>
-                      <input type='text'
-                             className='shadow appearance-none border rounded w-full py-3 sm:py-3 px-4 text-lg sm:text-xl text-gray-700 leading-tight focus:outline-none focus:shadow-outline'/>
+                      <label className='font-semibold text-xl mb-1 block'>Cardholder Name:</label>
+                      <input
+                        type='text'
+                        className='shadow appearance-none border rounded w-full py-3 sm:py-3 px-4 text-lg sm:text-xl text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+                        name="cardHolderName"
+                        value={cardHolderName}
+                        onChange={handleCardHolderNameChange}
+                      />
 
                     </div>
 

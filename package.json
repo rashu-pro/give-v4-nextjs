@@ -9,11 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "card-validator": "^8.1.1",
+    "creditcardutils": "^1.0.0",
     "eslint": "8.36.0",
     "eslint-config-next": "13.2.4",
     "next": "13.2.4",
     "react": "18.2.0",
-    "react-credit-cards": "^0.8.3",
     "react-dom": "18.2.0"
   },
   "devDependencies": {
