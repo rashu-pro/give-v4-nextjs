@@ -8,10 +8,15 @@ import cardValidator from "card-validator";
 import formatCreditCardNumber from "@/utils/formatCreditCardNumber";
 import formatExpiryDate from "@/utils/formatExpiryDate";
 import creditcardutils from "creditcardutils";
+import numberFormat from "@/utils/utils";
 
 export default function MainBody() {
   const [step, setStep] = useState(1);
+  const [invalidInputs, setInvalidInputs] = useState(0);
+  const [errors, setErrors] = useState({});
+  const [cause, setCause] = useState('');
   const [donationAmount, setdonationAmount] = useState(0);
+  const [note, setNote] = useState('');
   const [value, setValue] = useState('');
 
   // CARD STATES
@@ -19,14 +24,23 @@ export default function MainBody() {
   const [cardType, setCardType] = useState('unknown');
   const [isCardNumberValid, setIsCardNumberValid] = useState(false);
   const [expiryDate, setExpiryDate] = useState('');
+  const [isExpirationValid, setIsExpirationValid] = useState(false);
   const [cvc, setCvc] = useState('');
+  const [isCvvValid, setIsCvvValid] = useState(false);
   const [cvcSize, setCvcSize] = useState(3);
   const [cardHolderName, setCardHolderName] = useState('');
+  const [zipCode, setZipCode] = useState('');
   const [focus, setFocus] = useState('');
+
+  const handleCauseChange = (event) => {
+    setCause(event.target.value);
+    errors.cause = false;
+  }
 
   const handleAmountChange = (event) => {
     let amount = event.currentTarget.getAttribute('data-amount');
     setdonationAmount(amount);
+    errors.donationAmount = false;
   }
 
   const handleCardNumberChange = (event) => {
@@ -34,30 +48,100 @@ export default function MainBody() {
     setCardNumber(formattedNumber);
     const isCardNumberValid = cardValidator.number(event.target.value);
 
-    console.log('card validation status:', isCardNumberValid);
     if(isCardNumberValid.card) {
       setCardType(isCardNumberValid.card.type);
       setCvcSize(isCardNumberValid.card.code.size);
-      // console.log('cvc length: ', isCardNumberValid.card.code.size);
     }
+    errors.cardNumber = false;
+    console.log('card type:', cardType);
   };
 
   const handleCardHolderNameChange = (event) => {
     setCardHolderName(event.target.value);
+    errors.cardholderName = false;
     console.log('name validation status:', cardValidator.cardholderName(cardHolderName));
   }
 
   const handleExpiryDateChange = (event) => {
-    // const formattedString = formatExpiryDate(event.target.value);
     const formattedString = creditcardutils.formatCardExpiry(event.target.value);
     setExpiryDate(formattedString);
+    let isValid = cardValidator.expirationDate(formattedString);
+    setIsExpirationValid(isValid.isValid);
+    errors.expiryDate = false;
+  }
+
+  const handleNoteChange = (event) => {
+    setNote(event.target.value);
+  }
+
+  const handleCVCChange = (event) => {
+    let str = event.target.value;
+    str = numberFormat(str);
+    setIsCvvValid(cardValidator.cvv(event.target.value, cvcSize));
+    setCvc(str);
+    errors.cvc = false;
+  }
+
+  const handleZipCodeChange = (event) => {
+    let zipCode = event.target.value;
+    setZipCode(zipCode);
+    errors.zipCode = false;
   }
 
   const handleNext = () => {
-    setStep(step + 1);
+    if(step>3) return;
+    if(stepValidation(step)){
+      setStep(step + 1);
+    }
+
   }
   const handlePrev = () => {
     setStep(step - 1);
+  }
+
+  const stepValidation = (stepNumber) => {
+    let stepErrors = {};
+
+    switch (stepNumber){
+      case 1:
+        if(!cause){
+          stepErrors.cause = "Select a cause";
+        }
+
+        if(!donationAmount){
+          stepErrors.donationAmount = "Amount is required";
+        }else if(isNaN(donationAmount)){
+          stepErrors.donationAmount = "Input a valid number"
+        }
+
+        break
+
+      case 3:
+        if(!cardNumber){
+          stepErrors.cardNumber = "Invalid Card number";
+        }
+
+        if(!isExpirationValid){
+          stepErrors.expiryDate = "Invalid expiry date";
+        }
+
+        if(!isCvvValid.isValid){
+          stepErrors.cvc = "Invalid CVC";
+        }
+        if(!cardHolderName || cardHolderName.length<6){
+          stepErrors.cardholderName = "Your Name must have 6 characters atleast";
+        }
+        if(!zipCode || zipCode.length<5){
+          stepErrors.zipCode = "Invalid Zipcode";
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    setErrors(stepErrors);
+    return Object.keys(stepErrors).length === 0;
   }
 
   return (
@@ -78,13 +162,19 @@ export default function MainBody() {
                   <div className='step-body px-6 sm:px-8 py-4'>
                     <div className='form-group mb-4'>
                       <label className='font-bold text-2xl mb-3 block'>Donate to: </label>
-                      <select className='shadow border rounded w-full py-3 sm:py-4 px-4 text-xl sm:text-2xl text-gray-700 leading-tight focus:outline-none focus:shadow-outline'>
+                      <select
+                        className='shadow border rounded w-full py-3 sm:py-4 px-4 text-xl sm:text-2xl text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+                        value={cause}
+                        onChange={handleCauseChange}
+                      >
                         <option value=''>Choose a Cause</option>
                         <option value='general operation'>General Operations</option>
                         <option value='membership-fee'>Membership Fee</option>
                       </select>
+                      {errors.cause && <p style={{color:"#E91E63"}}>{errors.cause}</p>}
                     </div>
 
+                    {/*DONATION AMOUNT*/}
                     <div className='form-group mb-4'>
                       <label className='font-bold text-2xl mb-3 block'>Donation Amount: </label>
                       <div className='flex flex-wrap' style={{margin: '0 -.5rem'}}>
@@ -157,23 +247,25 @@ export default function MainBody() {
 
                       {/*OTHER AMOUNT*/}
                       <div className="relative mt-2 md:w-3/5">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                          <span className="text-gray-500 text-xl sm:text-2xl font-bold">$</span>
+
+                        <div style={{position:"relative"}}>
+                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <span className="text-gray-500 text-xl sm:text-2xl font-bold">$</span>
+                          </div>
+                          <input
+                            type="text"
+                            name="price"
+                            id="price"
+                            className="shadow appearance-none border rounded w-full pl-9 pr-7 py-3 sm:py-4 text-2xl sm:text-3xl font-bold text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            value={donationAmount}
+                            onChange={(e) => setdonationAmount(e.target.value)}
+                            placeholder="0.00"
+                          />
+                          <div className="absolute inset-y-0 right-0 flex items-center">
+                            <span className='pr-2'>USD</span>
+                          </div>
                         </div>
-                        <input type="text" name="price" id="price"
-                               className="shadow appearance-none border rounded w-full pl-9 pr-7 py-3 sm:py-4 text-2xl sm:text-3xl font-bold text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                               value={donationAmount}
-                               onChange={(e) => setdonationAmount(e.target.value)}
-                               placeholder="0.00"/>
-                        <div className="absolute inset-y-0 right-0 flex items-center">
-                          <label htmlFor="currency" className="sr-only">Currency</label>
-                          <select id="currency" name="currency"
-                                  className="h-full appearance-none rounded-md border-0 bg-transparent py-0 pl-2 pr-2 text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm">
-                            <option>USD</option>
-                            <option>CAD</option>
-                            <option>EUR</option>
-                          </select>
-                        </div>
+                        {errors.donationAmount && <p style={{color:"#E91E63"}}>{errors.donationAmount}</p>}
                       </div>
 
 
@@ -182,7 +274,10 @@ export default function MainBody() {
                     <div className='form-group mb-4'>
                       <label className='font-bold text-2xl mb-3 block'>Note </label>
                       <textarea
-                        className='shadow appearance-none border rounded w-full py-4 px-4 text-2xl text-gray-700 leading-tight focus:outline-none focus:shadow-outline'></textarea>
+                        className='shadow appearance-none border rounded w-full py-4 px-4 text-2xl text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+                        onChange={handleNoteChange}
+                        value={note}
+                      />
 
                     </div>
                   </div>
@@ -256,8 +351,7 @@ export default function MainBody() {
                         value={cardNumber}
                         onChange={handleCardNumberChange}
                       />
-
-
+                      {errors.cardNumber && <p style={{color:"#E91E63"}}>{errors.cardNumber}</p>}
                     </div>
 
                     <div className='form-group mb-4'>
@@ -266,9 +360,12 @@ export default function MainBody() {
                         type='text'
                         className='shadow appearance-none border rounded w-full py-3 sm:py-3 px-4 text-lg sm:text-xl text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
                         name="expiryDate"
+                        placeholder='mm/yy'
                         value={expiryDate}
                         onChange={handleExpiryDateChange}
                       />
+
+                      {errors.expiryDate && <p style={{color:"#E91E63"}}>{errors.expiryDate}</p>}
 
                     </div>
 
@@ -277,8 +374,12 @@ export default function MainBody() {
                       <input
                         type='text'
                         className='shadow appearance-none border rounded w-full py-3 sm:py-3 px-4 text-lg sm:text-xl text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+                        maxLength={cvcSize}
                         value={cvc}
+                        onChange={handleCVCChange}
                       />
+
+                      {errors.cvc && <p style={{color:"#E91E63"}}>{errors.cvc}</p>}
 
                     </div>
 
@@ -288,16 +389,25 @@ export default function MainBody() {
                         type='text'
                         className='shadow appearance-none border rounded w-full py-3 sm:py-3 px-4 text-lg sm:text-xl text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
                         name="cardHolderName"
+                        minLength={6}
                         value={cardHolderName}
                         onChange={handleCardHolderNameChange}
                       />
+
+                      {errors.cardholderName && <p style={{color:"#E91E63"}}>{errors.cardholderName}</p>}
 
                     </div>
 
                     <div className='form-group mb-4'>
                       <label className='font-semibold text-xl mb-1 block'>Zipcode:</label>
-                      <input type='text'
-                             className='shadow appearance-none border rounded w-full py-3 sm:py-3 px-4 text-lg sm:text-xl text-gray-700 leading-tight focus:outline-none focus:shadow-outline'/>
+                      <input
+                        type='text'
+                        className='shadow appearance-none border rounded w-full py-3 sm:py-3 px-4 text-lg sm:text-xl text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+                        value={zipCode}
+                        onChange={handleZipCodeChange}
+                      />
+
+                      {errors.zipCode && <p style={{color:"#E91E63"}}>{errors.zipCode}</p>}
 
                     </div>
                   </div>
