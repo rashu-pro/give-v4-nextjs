@@ -1,0 +1,46 @@
+.btn{
+  &Success{
+    &Custom{
+      background-color: #009688;
+      border-color:#009688;
+      color:#fff;
+      &:hover{
+        background-color: #00AE9C;
+        background-color: #157F74;
+        border-color: #157F74;
+        color:#fff;
+      }
+    }
+  }
+
+  &-navigation{
+    img{
+      display: inline-block;
+      position: relative;
+      top:-2px;
+      transition: 0.1s linear all;
+    }
+    .img{
+      &-right{
+        margin-left:-6px;
+      }
+      &-left{
+        margin-right:-6px;
+      }
+    }
+    &:hover{
+      .img-right{
+        transform:translateX(0.2rem);
+      }
+      .img-left{
+        transform:translateX(-0.2rem);
+      }
+    }
+  }
+
+  &-transparent{
+    background-color: transparent;
+    border-color:transparent;
+    padding:0;
+  }
+}
