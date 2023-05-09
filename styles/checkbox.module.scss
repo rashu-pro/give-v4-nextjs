@@ -1,0 +1,17 @@
+.checkbox{
+  &Lg{
+    width: 1rem;
+    height: 1rem;
+  }
+
+  &Holder{
+    input[type=checkbox]{
+      //float: left;
+    }
+    label{
+      line-height: 1.6;
+      position: relative;
+      top: -4px;
+    }
+  }
+}

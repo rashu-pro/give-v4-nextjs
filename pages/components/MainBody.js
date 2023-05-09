@@ -9,13 +9,18 @@ import Select from "react-select";
 import stepStyle from "styles/step.module.scss"
 import alertStyle from "styles/alert.module.scss"
 import btnStyle from "styles/btn.module.scss"
+import checkboxStyle from "styles/checkbox.module.scss"
 
 export default function MainBody() {
   const [step, setStep] = useState(1);
   const [invalidInputs, setInvalidInputs] = useState(0);
+  const [firstInvalidField, setFirstInvalidField] = useState(null);
   const [errors, setErrors] = useState({});
+  const [errorFields, setErrorFields] = useState({});
   const [cause, setCause] = useState(null);
-  const [donationAmount, setdonationAmount] = useState(0);
+  const [causeElement, setCauseElement] = useState(null);
+  const [donationAmount, setDonationAmount] = useState('');
+
   const [note, setNote] = useState('');
   const [value, setValue] = useState('');
 
@@ -32,20 +37,23 @@ export default function MainBody() {
   const [zipCode, setZipCode] = useState('');
   const [focus, setFocus] = useState('');
 
+  const [isModal, setIsModal] = useState(false);
+
   const causeOptions = [
     {value: 'General Operation', label: 'General Operation'},
     {value: 'Membership Fee', label: 'Membership Fee'},
     {value: 'Zakat', label: 'Zakat'},
     {value: 'Construction', label: 'Construction'}
-  ]
+  ];
 
   const handleCauseChange = (cause) => {
     setCause(cause);
+    setCauseElement(document.getElementById('causeElement'));
   }
 
   const handleAmountChange = (event) => {
     let amount = event.currentTarget.getAttribute('data-amount');
-    setdonationAmount(amount);
+    setDonationAmount(amount);
     errors.donationAmount = false;
   }
 
@@ -65,7 +73,6 @@ export default function MainBody() {
   const handleCardHolderNameChange = (event) => {
     setCardHolderName(event.target.value);
     errors.cardholderName = false;
-    console.log('name validation status:', cardValidator.cardholderName(cardHolderName));
   }
 
   const handleExpiryDateChange = (event) => {
@@ -99,10 +106,15 @@ export default function MainBody() {
     if(stepValidation(step)){
       setStep(step + 1);
     }
-
   }
   const handlePrev = () => {
     setStep(step - 1);
+  }
+
+  const handleSubmit = () => {
+    if(stepValidation(step)){
+      setIsModal(true);
+    }
   }
 
   const stepValidation = (stepNumber) => {
@@ -150,7 +162,11 @@ export default function MainBody() {
     return Object.keys(stepErrors).length === 0;
   }
 
-  const inputClasses = `shadow-inner-custom appearance-none border border-gray-input rounded w-full py-3 sm:py-3 px-4 text-lg sm:text-xl text-gray-700 leading-tight focus:outline-gray-900 focus:shadow-outline`;
+  const inputClasses = `input-field shadow-inner-custom appearance-none border border-gray-input rounded w-full py-3 sm:py-3 px-4 text-lg sm:text-xl text-gray-700 leading-tight focus:outline-gray-900 focus:shadow-outline`;
+
+  const onModalClose = () => {
+    setIsModal(false);
+  }
 
   return (
     <>
@@ -195,10 +211,12 @@ export default function MainBody() {
                       <label className='font-bold text-2xl mb-3 block'>Donate to: </label>
 
                       <Select
+                        options={causeOptions}
                         value={cause}
                         onChange={handleCauseChange}
-                        options={causeOptions}
                         placeholder={'Select Cause'}
+                        className={`input-field select-field ${errors.cause?'invalid':''}`}
+                        id='causeElement'
                         styles={{
                           control: (baseStyles, state) => ({
                             ...baseStyles,
@@ -304,9 +322,10 @@ export default function MainBody() {
                             type="text"
                             name="price"
                             id="price"
-                            className="shadow-inner-custom appearance-none border rounded w-full pl-9 pr-7 py-3 sm:py-3 text-2xl sm:text-3xl font-bold text-gray-700 leading-tight focus:outline-gray-900 focus:shadow-outline"
+                            className={`${errors.donationAmount?'invalid':''} input-field shadow-inner-custom appearance-none border rounded w-full pl-9 pr-7 py-3 sm:py-3 text-2xl sm:text-3xl font-bold text-gray-700 leading-tight focus:outline-gray-900 focus:shadow-outline`}
                             value={donationAmount}
-                            onChange={(e) => setdonationAmount(e.target.value)}
+                            onChange={(e) => setDonationAmount(e.target.value)}
+                            autoFocus={errors.donationAmount}
                             placeholder="0.00"
                           />
                           <div className="absolute inset-y-0 right-0 flex items-center">
@@ -485,12 +504,12 @@ export default function MainBody() {
                     </div>
 
                     <div className={`${alertStyle.alert} ${alertStyle.alertSecondary}`}>
-                      <div className="checkbox-holder d-flex align-items-start">
+                      <div className={`${checkboxStyle.checkboxHolder} flex items-start`}>
                         <div>
-                          <input type="checkbox" id="cover-fees" className="checkbox-lg" />
+                          <input type="checkbox" id="cover-fees" className={`${checkboxStyle.checkboxLg}`} />
                         </div>
 
-                        <label htmlFor="cover-fees" className="ps-2">I want to make an additional donation to cover
+                        <label htmlFor="cover-fees" className="pl-2">I want to make an additional donation to cover
                           online processing fees, so that my entire contribution goes to [company name]. ($5.50)</label>
                       </div>
                     </div>
@@ -500,27 +519,37 @@ export default function MainBody() {
                         <div className="col-md-8">
                           <button
                             type="button"
-                            className={`${btnStyle.btnSuccessCustom} w-10/12 flex align-center justify-center text-xl mx-auto border rounded-md ls-1 py-3 text-uppercase px-5 w-100`}
+                            className={`${btnStyle.btnSuccessCustom} w-full sm:w-9/12 flex align-center justify-center text-xl mx-auto border rounded-md ls-1 py-3 text-uppercase px-5 w-100`}
                             id="btn-submit"
+                            onClick={handleSubmit}
                           >
                             <Image
                               src="/protection.png"
                               alt="verified"
-                              width={26}
-                              height={24}
+                              width={22}
+                              height={22}
+                              style={{position: 'relative', top:'4px'}}
                             />
-                              <span className="ps-2">Donate $<span className="amount amount-js">100</span> </span>
+                              <span className="ps-2">DONATE $<span className="amount amount-js">{donationAmount}</span> </span>
                           </button>
                         </div>
 
                       </div>
 
-                      <div className="pt-3 mt-3 border-top">
-                        <button type="button"
-                                className="btn btn-transparent btn-navigation btn-navigation-prev btn-navigation-js fw-semibold"
-                                data-action="decrease">
-                          <img src="assets/images/left.png" className="img-left" alt="prev" />
-                            <span>BACK</span>
+                      <div className="pt-3 mt-4 border-t border-gray-200">
+                        <button
+                          type="button"
+                          className={`${btnStyle.btnNavigation} btn bg-transparent font-semibold rounded-md pr-4 pl-2 py-1 hover:bg-slate-200`}
+                          onClick={handlePrev}
+                        >
+                          <Image
+                            src='/left.png'
+                            alt='back'
+                            className={`${btnStyle.imgLeft}`}
+                            width={24}
+                            height={24}
+                          ></Image>
+                          <span>BACK</span>
                         </button>
                       </div>
                     </div>
@@ -582,6 +611,50 @@ export default function MainBody() {
             </p>
           </div>
         </div>
+      </div>
+
+      {/*CONFIRMATION MODAL*/}
+      <div
+        className={`${isModal?'block':'hidden'} modal-custom bg-gray-500 bg-opacity-70 min-h-full fixed h-full top-0 left-0 right-0 bottom-0 flex items-center justify-center`}
+
+      >
+          <div
+            className={`bg-white rounded w-5/12`}
+          >
+            {/*HEADER*/}
+            <div
+              className={`py-3 px-6 border-b border-gray-200`}
+            >
+              <h2 className={`text-xl font-bold uppercase`}>Payment Confirmation</h2>
+            </div>
+
+            {/*BODY*/}
+            <div
+              className={`pt-4 pb-6 px-6`}
+            >
+              <p className="text-xl font-bold text-blue-700">You are about to authorize ${donationAmount}</p>
+              <p className="text-base mt-4">Donation for: <span className="font-semibold"> {cause && cause.label}</span></p>
+            </div>
+
+            {/*FOOTER*/}
+            <div
+              className={`py-4 px-6 flex justify-end bg-gray-50 rounded-md`}
+            >
+              <button
+                onClick={onModalClose}
+                className={`text-base px-6 sm:px-5 py-3 mr-4 sm:py-3 bg-slate-300 uppercase rounded-md font-semibold hover:bg-slate-400`}
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={onModalClose}
+                className={`text-base px-6 sm:px-5 py-3 sm:py-3 bg-blue-600 text-white uppercase rounded-md font-semibold hover:bg-blue-800`}
+              >
+              Confirm
+              </button>
+            </div>
+          </div>
       </div>
     </>
   )

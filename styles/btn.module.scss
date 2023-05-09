@@ -13,7 +13,7 @@
     }
   }
 
-  &-navigation{
+  &Navigation{
     img{
       display: inline-block;
       position: relative;
@@ -21,24 +21,24 @@
       transition: 0.1s linear all;
     }
     .img{
-      &-right{
-        margin-left:-6px;
+      &Right{
+        margin-left:-4px;
       }
-      &-left{
-        margin-right:-6px;
+      &Left{
+        margin-right:-4px;
       }
     }
     &:hover{
-      .img-right{
+      .imgRight{
         transform:translateX(0.2rem);
       }
-      .img-left{
+      .imgLeft{
         transform:translateX(-0.2rem);
       }
     }
   }
 
-  &-transparent{
+  &Transparent{
     background-color: transparent;
     border-color:transparent;
     padding:0;
