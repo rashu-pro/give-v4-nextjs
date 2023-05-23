@@ -1,12 +1,26 @@
 .checkbox{
+  &Md{
+    width: 1.5rem;
+    height: 1.5rem;
+    border-width: 1px;
+  }
   &Lg{
-    width: 1rem;
-    height: 1rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-width: 2px;
   }
 
   &Holder{
     input[type=checkbox]{
       //float: left;
+      appearance: none;
+      &:checked{
+        background-image: url(https://secure-api.net/Content/event-management-assets/individual-multiple-assets/images/check-icon.svg);
+        background-color: #2563eb;
+        border-color: #2563eb;
+        outline: 2px solid #2563eb;
+        outline-offset: 2px;
+      }
     }
     label{
       line-height: 1.6;

@@ -6,10 +6,10 @@ import creditcardutils from "creditcardutils";
 import numberFormat from "@/utils/utils";
 import Select from "react-select";
 
-import stepStyle from "styles/step.module.scss"
 import alertStyle from "styles/alert.module.scss"
 import btnStyle from "styles/btn.module.scss"
 import checkboxStyle from "styles/checkbox.module.scss"
+import StepHead from "@/pages/components/step-head";
 
 export default function MainBody() {
   const [step, setStep] = useState(1);
@@ -23,6 +23,7 @@ export default function MainBody() {
 
   const [note, setNote] = useState('');
   const [value, setValue] = useState('');
+  const [isRecurring, setIsRecurring] = useState(false);
 
   // CARD STATES
   const [cardNumber, setCardNumber] = useState('');
@@ -55,6 +56,15 @@ export default function MainBody() {
     let amount = event.currentTarget.getAttribute('data-amount');
     setDonationAmount(amount);
     errors.donationAmount = false;
+  }
+
+  const handleIsRecurringCheckbox = (event) => {
+    if(isRecurring){
+      setIsRecurring(false);
+    }else{
+      setIsRecurring(true);
+    }
+
   }
 
   const handleCardNumberChange = (event) => {
@@ -171,39 +181,14 @@ export default function MainBody() {
   return (
     <>
       <div className='pt-3 sm:pt-4'>
-        <div className='container m-auto pb-12'>
+        <div className='container m-auto pb-12 md:pb-20'>
           <div className='max-w-2xl m-auto bg-white'>
             <div className='step-box'>
 
               {step === 1 && (
                 <>
                   {/*STEP HEAD*/}
-                  <div className='step-head flex items-center flex-wrap bg-slate-900 px-6 sm:px-8 pt-2 sm:pt-4 pb-2 sm:pb-4'>
-                    <div className='w-10/12'>
-                      <h2 className='text-2xl sm:text-3xl font-bold text-white'>CHOOSE AMOUNT</h2>
-                    </div>
-
-                    <div className='w-2/12'>
-                      <div
-                        className="step-indicator flex align-middle justify-end mb-2 mb-sm-2 mb-md-0">
-                        <div className={stepStyle.stepListWrapper}>
-                          <div className={`${stepStyle.stepListSingle} ${stepStyle.active}`}>
-                            <div className={stepStyle.stepMark}></div>
-                          </div>
-
-                          <div className={stepStyle.stepListSingle}>
-                            <div className={stepStyle.stepMark}></div>
-                          </div>
-
-                          <div className={stepStyle.stepListSingle}>
-                            <div className={stepStyle.stepMark}></div>
-                          </div>
-                        </div>
-                      </div>
-
-                    </div>
-
-                  </div>
+                  <StepHead dataTitle={'CHOOSE AMOUNT'} dataStep={step} />
 
                   {/*STEP BODY*/}
                   <div className='step-body px-6 sm:px-8 py-4'>
@@ -312,7 +297,7 @@ export default function MainBody() {
                       </div>
 
                       {/*OTHER AMOUNT*/}
-                      <div className="relative mt-2 md:w-10/12">
+                      <div className="relative mt-2 md:w-12/12">
 
                         <div style={{position:"relative"}}>
                           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -338,6 +323,44 @@ export default function MainBody() {
 
                     </div>
 
+                    <div className='bg-blue-100 px-4 py-4 mb-4'>
+                      <div className='form-group'>
+                        <div className={`${checkboxStyle.checkboxHolder} flex`}>
+                          <div className='mr-2'>
+                            <input
+                              type="checkbox"
+                              id="recurring-check"
+                              className={`${checkboxStyle.checkboxLg} border border-gray-400 rounded-md`}
+                              checked={isRecurring}
+                              onChange={handleIsRecurringCheckbox}
+                            />
+                          </div>
+
+                          <label htmlFor="recurring-check" className='text-xl font-semibold'>Make this donation recurring?</label>
+                        </div>
+                      </div>
+
+                      <div className={`flex pt-2 ${isRecurring?'':'hidden'}`}>
+                        <div className='form-group mb-4 sm:mb-0 w-full sm:w-6/12 pr-0 sm:pr-2'>
+                          <label className='font-semibold text-xl mb-1 block'>Recurring By:</label>
+                          <input
+                            type='text'
+                            className={inputClasses}
+                          />
+
+                        </div>
+
+                        <div className='form-group mb-4 sm:mb-0 w-full sm:w-6/12 pl-0 sm:pl-2'>
+                          <label className='font-semibold text-xl mb-1 block'>Recurring Duration:</label>
+                          <input
+                            type='text'
+                            className={inputClasses}
+                          />
+
+                        </div>
+                      </div>
+                    </div>
+
                     <div className='form-group mb-4'>
                       <label className='font-bold text-2xl mb-3 block'>Note </label>
                       <textarea
@@ -354,9 +377,7 @@ export default function MainBody() {
               {step === 2 && (
                 <>
                   {/*STEP HEAD*/}
-                  <div className='step-head bg-slate-900 px-6 sm:px-8 pt-2 sm:pt-4 pb-2 sm:pb-4'>
-                    <h2 className='text-2xl sm:text-3xl font-bold text-white'>Your Information</h2>
-                  </div>
+                  <StepHead dataTitle={'Your Information'} dataStep={step} />
 
                   {/*STEP BODY*/}
                   <div className='step-body px-6 sm:px-8 py-4'>
@@ -411,9 +432,7 @@ export default function MainBody() {
               {step === 3 && (
                 <>
                   {/*STEP HEAD*/}
-                  <div className='step-head bg-slate-900 px-6 sm:px-8 pt-2 sm:pt-4 pb-2 sm:pb-4'>
-                    <h2 className='text-2xl sm:text-3xl font-bold text-white'>Payment Details</h2>
-                  </div>
+                  <StepHead dataTitle={'Payment Details'} dataStep={step} />
 
                   {/*STEP BODY*/}
                   <div className='step-body px-6 sm:px-8 py-4 flex flex-wrap'>
@@ -500,7 +519,7 @@ export default function MainBody() {
                       Please note that you will see a charge from <strong>"[company name]"</strong> on your credit card
                       statement.
                       [company name] is a tax exempt organization under section 501(c)(3) of Internal Revenue
-                      Code.<strong>Employer Idenfication Number 46-5035493.</strong>
+                      Code.<strong>Employer Identification Number 46-5035493.</strong>
                     </div>
 
                     <div className={`${alertStyle.alert} ${alertStyle.alertSecondary}`}>
@@ -561,7 +580,7 @@ export default function MainBody() {
               {step > 1 && (
                 <button type='button'
                 onClick={handlePrev}
-                className='text-xl px-6 sm:px-10 py-3 sm:py-4 bg-slate-800 text-white font-semibold mr-5 hover:bg-slate-900'>
+                className='text-xl px-6 sm:px-10 py-3 sm:py-4 rounded-md bg-slate-800 text-white font-semibold mr-5 hover:bg-slate-900'>
                 <Image src='/left-white-24.png'
                 className='inline-block'
                 style={{position: 'relative', top: '-2px'}}
@@ -574,7 +593,7 @@ export default function MainBody() {
 
                 <button type='button'
                 onClick={handleNext}
-                className='text-xl px-6 sm:px-10 py-3 sm:py-4 bg-blue-700 text-white font-semibold hover:bg-blue-800'>
+                className='text-xl px-6 sm:px-10 py-3 sm:py-4 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-800'>
                 NEXT
                 <Image src='/right_white.png'
                 className='inline-block'
