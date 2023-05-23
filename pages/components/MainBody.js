@@ -10,6 +10,9 @@ import alertStyle from "styles/alert.module.scss"
 import btnStyle from "styles/btn.module.scss"
 import checkboxStyle from "styles/checkbox.module.scss"
 import StepHead from "@/pages/components/step-head";
+import ImageProtection from "public/protection.png";
+import LeftIcon from "public/left.png";
+import ImageLeftWhiteIcon from "public/left-white-24.png";
 
 export default function MainBody() {
   const [step, setStep] = useState(1);
@@ -429,7 +432,7 @@ export default function MainBody() {
                 </>
               )}
 
-              {step === 3 && (
+             gir {step === 3 && (
                 <>
                   {/*STEP HEAD*/}
                   <StepHead dataTitle={'Payment Details'} dataStep={step} />
@@ -516,7 +519,7 @@ export default function MainBody() {
                 <>
                   <div className="step-foot py-4 border-t border-gray-200 px-3 px-md-5 py-2 py-md-3">
                     <div className={`${alertStyle.alert} ${alertStyle.alertPrimary}`}>
-                      Please note that you will see a charge from <strong>"[company name]"</strong> on your credit card
+                      Please note that you will see a charge from <strong>[company name]</strong> on your credit card
                       statement.
                       [company name] is a tax exempt organization under section 501(c)(3) of Internal Revenue
                       Code.<strong>Employer Identification Number 46-5035493.</strong>
@@ -543,7 +546,7 @@ export default function MainBody() {
                             onClick={handleSubmit}
                           >
                             <Image
-                              src="/protection.png"
+                              src={ImageProtection}
                               alt="verified"
                               width={22}
                               height={22}
@@ -562,7 +565,7 @@ export default function MainBody() {
                           onClick={handlePrev}
                         >
                           <Image
-                            src='/left.png'
+                            src={LeftIcon}
                             alt='back'
                             className={`${btnStyle.imgLeft}`}
                             width={24}
@@ -581,7 +584,7 @@ export default function MainBody() {
                 <button type='button'
                 onClick={handlePrev}
                 className='text-xl px-6 sm:px-10 py-3 sm:py-4 rounded-md bg-slate-800 text-white font-semibold mr-5 hover:bg-slate-900'>
-                <Image src='/left-white-24.png'
+                <Image src={ImageLeftWhiteIcon}
                 className='inline-block'
                 style={{position: 'relative', top: '-2px'}}
                 alt='prev'

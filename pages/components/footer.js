@@ -1,4 +1,5 @@
 import footer from "styles/footer.module.scss";
+import Image from "next/image";
 
 export default function Footer(){
   return (
@@ -18,11 +19,14 @@ export default function Footer(){
               <div className="w-full sm:w-3/12 md:w-4/12">
                 <div className={footer.creditWrapper}>
                   <div className={`${footer.logoHolder} text-left md:text-right py-2`}>
-                    <img
-                      src="https://res.cloudinary.com/secure-api/image/upload/v1665995024/secure-api/Secure-api/content/images/bsyzbmzysh1fjgieix2v.png"
-                      alt="secure transaction"
-                      className='ml-auto'
-                    />
+                    <Image
+                      src={'https://res.cloudinary.com/secure-api/image/upload/v1665995024/secure-api/Secure-api/content/images/bsyzbmzysh1fjgieix2v.png'}
+                      alt={'secure transaction'}
+                      width={160}
+                      height={40}
+                    >
+
+                    </Image>
                   </div>
                 </div>
 
